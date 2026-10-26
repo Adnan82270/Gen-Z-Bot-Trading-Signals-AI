@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gen-Z Bot - Admin Panel</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
+        body { background-color: #030712; color: #fff; padding: 20px; display: flex; flex-direction: column; align-items: center; }
+        
+        .admin-card {
+            width: 100%; max-width: 800px; background: rgba(13, 20, 35, 0.9);
+            border: 1px solid rgba(0, 242, 254, 0.3); border-radius: 16px;
+            padding: 25px; margin-bottom: 25px; box-shadow: 0 0 30px rgba(0, 242, 254, 0.1);
+        }
+        h2 { font-family: 'Orbitron', sans-serif; color: #00f2fe; margin-bottom: 20px; font-size: 18px; }
+        
+        .form-row { display: flex; gap: 10px; margin-bottom: 20px; }
+        select, input, button {
+            padding: 12px; border-radius: 8px; border: 1px solid rgba(0, 242, 254, 0.3);
+            background: #09101d; color: #fff; font-size: 13px; outline: none;
+        }
+        button {
+            background: linear-gradient(135deg, #00f2fe, #4facfe); color: #030712;
+            font-weight: 700; cursor: pointer; border: none; transition: 0.3s;
+        }
+        button:hover { opacity: 0.9; transform: translateY(-1px); }
+        
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 12px; }
+        th, td { padding: 10px; text-align: left; border-bottom: 1px solid rgba(255, 255, 255, 0.08); }
+        th { color: #00f2fe; font-family: 'Orbitron', sans-serif; font-size: 11px; }
+        
+        .badge-unused { color: #00ff80; background: rgba(0, 255, 128, 0.1); padding: 3px 8px; border-radius: 4px; }
+        .badge-used { color: #ef4444; background: rgba(239, 68, 68, 0.1); padding: 3px 8px; border-radius: 4px; }
+        .key-text { font-family: monospace; font-size: 14px; color: #00f2fe; letter-spacing: 1px; }
+        
+        .action-btn { background: rgba(239, 68, 68, 0.2); color: #ef4444; border: 1px solid #ef4444; padding: 4px 8px; border-radius: 4px; cursor: pointer; }
+    </style>
+</head>
+<body>
+
+    <!-- Key Generator Section -->
+    <div class="admin-card">
+        <h2>🔑 License Key Generator</h2>
+        <div class="form-row">
+            <select id="durationSelect">
+                <option value="1">1 Day Trial</option>
+                <option value="7">7 Days Pass</option>
+                <option value="30" selected>30 Days Standard</option>
+                <option value="365">1 Year VIP</option>
+            </select>
+            <button onclick="generateKey()">Generate New Key ⚡</button>
+        </div>
+        <div id="generatedKeyBox" style="display:none; background: rgba(0,255,128,0.1); border: 1px dashed #00ff80; padding: 12px; border-radius: 8px; text-align: center;">
+            <span style="color:#94a3b8; font-size:11px;">NEW ACTIVATION KEY:</span><br>
+            <strong id="keyDisplay" class="key-text">XXXX-XXXX-XXXX-XXXX</strong>
+        </div>
+    </div>
+
+    <!-- Active Keys & Registered Users Table -->
+    <div class="admin-card">
+        <h2>👥 Users & Activation Keys Management</h2>
+        <button onclick="loadAdminData()" style="margin-bottom: 15px;">Refresh Data 🔄</button>
+        
+        <h3 style="font-size:13px; color:#94a3b8; margin-top:10px;">Generated Keys:</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Key</th>
+                    <th>Duration</th>
+                    <th>Status</th>
+                    <th>Used By</th>
+                </tr>
+            </thead>
+            <tbody id="keysTableBody">
+                <!-- Data loaded dynamically -->
+            </tbody>
+        </table>
+
+        <h3 style="font-size:13px; color:#94a3b8; margin-top:25px;">Registered Users:</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Email</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody id="usersTableBody">
+                <!-- Data loaded dynamically -->
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        async function generateKey() {
+            const duration = document.getElementById('durationSelect').value;
+            const res = await fetch('/api/admin/generate-key', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ durationDays: duration })
+            });
+            const data = await res.json();
+            if (data.success) {
+                document.getElementById('generatedKeyBox').style.display = 'block';
+                document.getElementById('keyDisplay').innerText = data.key;
+                loadAdminData();
+            } else {
+                alert(data.message);
+            }
+        }
+
+        async function loadAdminData() {
+            const res = await fetch('/api/admin/dashboard-data');
+            const data = await res.json();
+            if (data.success) {
+                // Populate Keys Table
+                const keysTbody = document.getElementById('keysTableBody');
+                keysTbody.innerHTML = data.keys.map(k => `
+                    <tr>
+                        <td class="key-text">${k.key}</td>
+                        <td>${k.durationDays} Days</td>
+                        <td><span class="${k.isUsed ? 'badge-used' : 'badge-unused'}">${k.isUsed ? 'USED' : 'ACTIVE'}</span></td>
+                        <td>${k.usedBy || 'N/A'}</td>
+                    </tr>
+                `).join('');
+
+                // Populate Users Table
+                const usersTbody = document.getElementById('usersTableBody');
+                usersTbody.innerHTML = data.users.map(u => `
+                    <tr>
+                        <td>${u.email}</td>
+                        <td>${u.activeDeviceId ? '🔒 Device Locked' : '🟢 Free Session'}</td>
+                        <td>
+                            <button class="action-btn" onclick="userAction('${u._id}', 'unlock_device')">Reset Lock</button>
+                            <button class="action-btn" onclick="userAction('${u._id}', 'delete')">Delete</button>
+                        </td>
+                    </tr>
+                `).join('');
+            }
+        }
+
+        async function userAction(userId, action) {
+            if(!confirm('Are you sure you want to perform this action?')) return;
+            const res = await fetch('/api/admin/user-action', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ userId, action })
+            });
+            const data = await res.json();
+            alert(data.message);
+            loadAdminData();
+        }
+
+        // Auto load on page view
+        loadAdminData();
+    </script>
+</body>
+</html>
