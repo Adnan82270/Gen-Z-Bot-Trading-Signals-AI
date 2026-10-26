@@ -37,7 +37,6 @@
             pointer-events: none;
         }
 
-        /* Perfectly Aligned Clean Header */
         header {
             width: 100%;
             max-width: 500px;
@@ -254,7 +253,6 @@
             border: 1px solid rgba(255, 255, 255, 0.05);
         }
 
-        /* Orbit Button */
         .btn-orbit {
             width: 100%;
             padding: 16px;
@@ -276,7 +274,6 @@
             box-shadow: 0 6px 30px rgba(0, 242, 254, 0.6);
         }
 
-        /* Broker Server Clock & Status directly below the button */
         .server-time-box {
             background: rgba(3, 7, 18, 0.9);
             border: 1px solid rgba(0, 242, 254, 0.25);
@@ -306,7 +303,6 @@
             font-weight: 500;
         }
 
-        /* Signal Display Box */
         .signal-display {
             background: rgba(3, 7, 18, 0.85);
             border: 1px solid rgba(0, 242, 254, 0.3);
@@ -363,7 +359,6 @@
             line-height: 1.4;
         }
 
-        /* Settings View Form */
         .form-group {
             margin-bottom: 14px;
             text-align: left;
@@ -458,17 +453,14 @@
                 </div>
             </div>
 
-            <!-- Orbit AI Analysis Button -->
             <button class="btn-orbit" onclick="runOrbitAnalysisDirect()">RUN ORBIT AI ANALYSIS ⚡</button>
 
-            <!-- Broker Server Clock & Countdown directly below button -->
             <div class="server-time-box">
-                <div class="broker-clock-label">Quotex Server Time (UTC Synchronized)</div>
+                <div class="broker-clock-label">Broker Server Time (Synced & Adjusted)</div>
                 <div id="brokerClock" class="broker-clock-display">00:00:00</div>
                 <div id="candlePhaseStatus" class="candle-phase-status">Candle Building Phase...</div>
             </div>
 
-            <!-- Signal Output Display (No Popup) -->
             <div id="signalDisplay" class="signal-display">
                 <div class="signal-title">Next-Candle AI Signal Result</div>
                 <div id="signalExpiryInfo" class="signal-expiry">Target: Next Candle Expiry (1 Min)</div>
@@ -510,6 +502,12 @@
             </div>
 
             <div class="form-group">
+                <label>Time Offset Adjuster (Seconds / Minutes)</label>
+                <input type="number" id="timeOffset" value="0" min="-3600" max="3600" placeholder="e.g. +300 or -300">
+                <small style="color: #94a3b8; font-size: 10px; display: block; margin-top: 4px;">Enter seconds (e.g. +1800 or -1800) to adjust hours/minutes difference with Quotex chart.</small>
+            </div>
+
+            <div class="form-group">
                 <label>Trade Amount ($)</label>
                 <input type="number" id="tradeAmount" value="10" min="1" max="1000">
             </div>
@@ -531,10 +529,13 @@
     <script>
         let serverSecond = 0;
 
-        // Quotex / Broker Server Time (UTC Locked) Synchronization
         setInterval(() => {
             const now = new Date();
-            // Using UTC time to match broker server environment independently of local device time zone mismatches
+            const offsetSec = parseInt(document.getElementById('timeOffset').value) || 0;
+            
+            // Apply expanded offset range (seconds/minutes/hours support)
+            now.setSeconds(now.getSeconds() + offsetSec);
+
             const utcHours = String(now.getUTCHours()).padStart(2, '0');
             const utcMinutes = String(now.getUTCMinutes()).padStart(2, '0');
             const utcSeconds = String(now.getUTCSeconds()).padStart(2, '0');
@@ -544,7 +545,6 @@
             serverSecond = now.getUTCSeconds();
             const phaseEl = document.getElementById('candlePhaseStatus');
 
-            // 50s to 59s Golden Entry Window
             if (serverSecond >= 50 && serverSecond <= 59) {
                 phaseEl.innerText = `🔥 Golden Entry Window! (${60 - serverSecond}s left)`;
                 phaseEl.style.color = "#00ff80";
@@ -570,8 +570,10 @@
         function saveSettings() {
             const asset = document.getElementById('assetSelect').value;
             const timeframe = document.getElementById('candleTime').value;
+            const offset = document.getElementById('timeOffset').value;
             
             document.getElementById('activePairDisplay').innerText = `Asset: ${asset} (${timeframe})`;
+            alert(`Settings saved successfully! Time Offset: ${offset}s`);
             switchTab('signalView');
         }
 
