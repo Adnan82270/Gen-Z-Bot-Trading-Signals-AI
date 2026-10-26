@@ -1,48 +1,98 @@
-// ==================== ADMIN SYSTEM & KEY GENERATOR ====================
+const express = require('express');
+const mongoose = require('mongoose');
+const session = require('express-session');
+const bcrypt = require('bcryptjs');
+const path = require('path');
 
-// Key Generator Helper Function
-function generateActivationKey(length = 16) {
-    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-    let key = '';
-    for (let i = 0; i < length; i++) {
-        if (i > 0 && i % 4 === 0) key += '-';
-        key += chars.charAt(floor(Math.random() * chars.length));
-    }
-    return key; // Format: XXXX-XXXX-XXXX-XXXX
-}
+const app = express();
+const PORT = process.env.PORT || 3000;
 
-// Admin Schema / Key Schema in MongoDB (or add to your existing schemas)
+// Middleware
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+app.use(express.static(path.join(__dirname, 'public')));
+
+app.use(session({
+    secret: 'genz_bot_secret_key_998877',
+    resave: false,
+    saveUninitialized: false,
+    cookie: { maxAge: 24 * 60 * 60 * 1000 } // 1 Day Session
+}));
+
+// MongoDB Atlas Database Connection
+const MONGO_URI = process.env.MONGO_URI || 'mongodb+srv://your_atlas_connection_string_here'; // Apni Atlas URI yahan dein
+mongoose.connect(MONGO_URI, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true
+})
+.then(() => console.log('MongoDB Atlas Connected Successfully!'))
+.catch(err => console.error('MongoDB Connection Error:', err));
+
+// ==================== DATABASE SCHEMAS ====================
+
+const UserSchema = new mongoose.Schema({
+    email: { type: String, required: true, unique: true },
+    password: { type: String, required: true },
+    activeDeviceId: { type: String, default: null },
+    sessionToken: { type: String, default: null },
+    planExpiresAt: { type: Date, default: null },
+    createdAt: { type: Date, default: Date.now }
+});
+
+const User = mongoose.model('User', UserSchema);
+
 const KeySchema = new mongoose.Schema({
     key: { type: String, required: true, unique: true },
-    durationDays: { type: Number, required: true }, // e.g. 1, 7, 30, 365
+    durationDays: { type: Number, required: true },
     isUsed: { type: Boolean, default: false },
-    usedBy: { type: String, default: null }, // User Email
+    usedBy: { type: String, default: null },
     createdAt: { type: Date, default: Date.now }
 });
 
 const Key = mongoose.model('Key', KeySchema);
 
-// Admin Middleware Check
+
+// ==================== ADMIN & AUTH MIDDLEWARES ====================
+
 function isAdmin(req, res, next) {
-    // Basic Admin Protection (session or admin secret header)
     if (req.session && req.session.isAdmin) {
         return next();
     }
     return res.status(403).json({ success: false, message: 'Access Denied: Admin privileges required.' });
 }
 
-// 1. Admin Login API Route
+function isAuthenticated(req, res, next) {
+    if (req.session && req.session.userId) {
+        return next();
+    }
+    return res.redirect('/login.html');
+}
+
+
+// ==================== ADMIN PANEL API ROUTES ====================
+
+// Helper for generating keys
+function generateActivationKey(length = 16) {
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    let key = '';
+    for (let i = 0; i < length; i++) {
+        if (i > 0 && i % 4 === 0) key += '-';
+        key += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    return key;
+}
+
+// Admin Login
 app.post('/api/admin/login', (req, res) => {
     const { username, password } = req.body;
-    // Set your secure Admin credentials
     if (username === 'admin' && password === 'admin12345') {
         req.session.isAdmin = true;
-        return res.json({ success: true, message: 'Admin authenticated successfully!' });
+        return res.json({ success: true, message: 'Admin login successful!' });
     }
     return res.json({ success: false, message: 'Invalid Admin Credentials!' });
 });
 
-// 2. Generate New License / Activation Key
+// Generate Key
 app.post('/api/admin/generate-key', isAdmin, async (req, res) => {
     try {
         const { durationDays } = req.body;
@@ -56,11 +106,11 @@ app.post('/api/admin/generate-key', isAdmin, async (req, res) => {
         await keyDoc.save();
         res.json({ success: true, key: newKey, durationDays: keyDoc.durationDays });
     } catch (err) {
-        res.status(500).json({ success: false, message: 'Error generating key: ' + err.message });
+        res.status(500).json({ success: false, message: err.message });
     }
 });
 
-// 3. Get All Keys & All Registered Users
+// Get Admin Data (Keys & Users)
 app.get('/api/admin/dashboard-data', isAdmin, async (req, res) => {
     try {
         const keys = await Key.find().sort({ createdAt: -1 });
@@ -71,7 +121,7 @@ app.get('/api/admin/dashboard-data', isAdmin, async (req, res) => {
     }
 });
 
-// 4. Revoke / Delete User or Reset Session Lock
+// User Management Actions (Delete / Unlock Device)
 app.post('/api/admin/user-action', isAdmin, async (req, res) => {
     try {
         const { userId, action } = req.body;
@@ -85,4 +135,21 @@ app.post('/api/admin/user-action', isAdmin, async (req, res) => {
     } catch (err) {
         res.status(500).json({ success: false, message: err.message });
     }
+});
+
+
+// ==================== USER ROUTES ====================
+
+app.get('/dashboard', isAuthenticated, (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'dashboard.html'));
+});
+
+app.get('/admin', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'admin.html'));
+});
+
+
+// Start Server
+app.listen(PORT, () => {
+    console.log(`Server is running live on port ${PORT}`);
 });
