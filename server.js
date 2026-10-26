@@ -28,11 +28,11 @@ const Admin = mongoose.model('Admin', AdminSchema);
 
 const UserSchema = new mongoose.Schema({
     email: { type: String, required: true, unique: true },
-    password: { type: String, required: true },
+    password: { type: String, default: 'N/A' },
     activeDeviceId: { type: String, default: null },
     sessionToken: { type: String, default: null },
     planExpiresAt: { type: Date, default: null },
-    createdAt: { type: Date, date: Date.now }
+    createdAt: { type: Date, default: Date.now }
 });
 const User = mongoose.model('User', UserSchema);
 
@@ -62,7 +62,7 @@ mongoose.connect(MONGO_URI)
 .catch(err => console.error('MongoDB Connection Error:', err));
 
 
-// ==================== ADMIN MIDDLEWARES & HELPERS ====================
+// ==================== HELPERS & MIDDLEWARES ====================
 function isAdmin(req, res, next) {
     if (req.session && req.session.isAdmin) {
         return next();
@@ -163,6 +163,69 @@ app.post('/api/admin/user-action', isAdmin, async (req, res) => {
     }
 });
 
+
+// ==================== USER ACTIVATION & LOGIN API ====================
+app.post('/api/activate', async (req, res) => {
+    try {
+        const { key, email, deviceId } = req.body;
+
+        if (!key || !email) {
+            return res.json({ success: false, message: 'Please provide both Key and Email!' });
+        }
+
+        const cleanKey = key.trim();
+        const cleanEmail = email.trim().toLowerCase();
+
+        // 1. Check if Key exists
+        const keyDoc = await Key.findOne({ key: cleanKey });
+        if (!keyDoc) {
+            return res.json({ success: false, message: 'Invalid Activation Key!' });
+        }
+
+        // 2. Check if Key is already used
+        if (keyDoc.isUsed) {
+            return res.json({ success: false, message: 'This Key has already been used!' });
+        }
+
+        // 3. Check target email binding
+        if (keyDoc.targetEmail && keyDoc.targetEmail !== cleanEmail) {
+            return res.json({ success: false, message: 'This Key is assigned to a different email address!' });
+        }
+
+        // 4. Calculate expiration
+        const expiresAt = new Date();
+        expiresAt.setDate(expiresAt.getDate() + keyDoc.durationDays);
+
+        // 5. Register or update user
+        let user = await User.findOne({ email: cleanEmail });
+        if (!user) {
+            user = new User({
+                email: cleanEmail,
+                password: 'N/A',
+                activeDeviceId: deviceId || 'device_' + Math.random(),
+                planExpiresAt: expiresAt
+            });
+        } else {
+            user.planExpiresAt = expiresAt;
+            if (!user.activeDeviceId) {
+                user.activeDeviceId = deviceId || 'device_' + Math.random();
+            }
+        }
+        await user.save();
+
+        // 6. Mark key as used
+        keyDoc.isUsed = true;
+        keyDoc.usedBy = cleanEmail;
+        await keyDoc.save();
+
+        res.json({ success: true, message: 'AI Activated Successfully!', redirectUrl: '/dashboard.html' });
+    } catch (err) {
+        res.status(500).json({ success: false, message: err.message });
+    }
+});
+
+
+// ==================== STATIC ROUTES ====================
 app.get('/admin', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'admin.html'));
 });
