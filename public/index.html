@@ -91,12 +91,32 @@
         /* Neural Core / Football Sphere Styling */
         .neural-core-container {
             position: relative;
-            width: 160px;
-            height: 160px;
+            width: 180px;
+            height: 180px;
             margin: 0 auto 25px auto;
             display: flex;
             justify-content: center;
             align-items: center;
+        }
+
+        /* Background Large Rotating Orbit System */
+        .bg-orbit-system {
+            position: absolute;
+            width: 180px;
+            height: 180px;
+            border-radius: 50%;
+            border: 1px dashed rgba(0, 242, 254, 0.2);
+            animation: rotateClockwise 15s linear infinite;
+        }
+        .bg-orbit-node {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: #00f2fe;
+            border-radius: 50%;
+            box-shadow: 0 0 6px #00f2fe;
+            top: 10px;
+            left: 50%;
         }
 
         .neural-sphere {
@@ -107,6 +127,7 @@
             position: relative;
             box-shadow: 0 0 30px rgba(0, 242, 254, 0.4), inset 0 0 15px rgba(255, 255, 255, 0.3);
             overflow: hidden;
+            z-index: 2;
         }
 
         /* Football Hexagon Pattern Effect inside Sphere */
@@ -122,13 +143,14 @@
             opacity: 0.6;
         }
 
-        /* Inner Glowing Particles (Increased quantity) */
+        /* Inner Glowing Particles */
         .particle {
             position: absolute;
             background: #ffffff;
             border-radius: 50%;
             box-shadow: 0 0 6px #00f2fe;
             animation: pulseGlow 2s infinite ease-in-out;
+            z-index: 3;
         }
         .p1 { width: 4px; height: 4px; top: 20%; left: 30%; animation-delay: 0s; }
         .p2 { width: 5px; height: 5px; top: 50%; left: 80%; animation-delay: 0.4s; }
@@ -148,11 +170,12 @@
         /* Outer 4 Clockwise Dots on Sphere Border */
         .orbit-ring-outer {
             position: absolute;
-            width: 140px;
-            height: 140px;
+            width: 146px;
+            height: 146px;
             border-radius: 50%;
-            border: 1px dashed rgba(0, 242, 254, 0.15);
+            border: 1px dashed rgba(0, 242, 254, 0.25);
             animation: rotateClockwise 8s linear infinite;
+            z-index: 4;
         }
         .dot-cw {
             position: absolute;
@@ -170,11 +193,12 @@
         /* Inner 2 Anti-Clockwise Dots */
         .orbit-ring-inner {
             position: absolute;
-            width: 100px;
-            height: 100px;
+            width: 132px;
+            height: 132px;
             border-radius: 50%;
-            border: 1px dashed rgba(79, 172, 254, 0.15);
+            border: 1px dashed rgba(79, 172, 254, 0.2);
             animation: rotateAntiClockwise 6s linear infinite;
+            z-index: 4;
         }
         .dot-acw {
             position: absolute;
@@ -310,6 +334,11 @@
 
         <!-- Neural Core Animation Box -->
         <div class="neural-core-container">
+            <!-- Background Large Orbit System -->
+            <div class="bg-orbit-system">
+                <div class="bg-orbit-node"></div>
+            </div>
+
             <!-- Outer 4 Clockwise Dots -->
             <div class="orbit-ring-outer">
                 <div class="dot-cw"></div>
