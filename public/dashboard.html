@@ -456,7 +456,7 @@
             <button class="btn-orbit" onclick="runOrbitAnalysisDirect()">RUN ORBIT AI ANALYSIS ⚡</button>
 
             <div class="server-time-box">
-                <div class="broker-clock-label">Broker Server Time (Synced & Adjusted)</div>
+                <div class="broker-clock-label">Quotex Server Time (UTC+5 Locked)</div>
                 <div id="brokerClock" class="broker-clock-display">00:00:00</div>
                 <div id="candlePhaseStatus" class="candle-phase-status">Candle Building Phase...</div>
             </div>
@@ -502,9 +502,9 @@
             </div>
 
             <div class="form-group">
-                <label>Time Offset Adjuster (Seconds / Minutes)</label>
-                <input type="number" id="timeOffset" value="0" min="-3600" max="3600" placeholder="e.g. +300 or -300">
-                <small style="color: #94a3b8; font-size: 10px; display: block; margin-top: 4px;">Enter seconds (e.g. +1800 or -1800) to adjust hours/minutes difference with Quotex chart.</small>
+                <label>Manual Time Offset (Seconds)</label>
+                <input type="number" id="timeOffset" value="0" min="-300" max="300" placeholder="0">
+                <small style="color: #94a3b8; font-size: 10px; display: block; margin-top: 4px;">Fine-tune if needed (e.g. +1 or -1 sec).</small>
             </div>
 
             <div class="form-group">
@@ -529,20 +529,22 @@
     <script>
         let serverSecond = 0;
 
+        // Exact Quotex UTC+5 Server Time Synchronization Logic
         setInterval(() => {
             const now = new Date();
             const offsetSec = parseInt(document.getElementById('timeOffset').value) || 0;
             
-            // Apply expanded offset range (seconds/minutes/hours support)
-            now.setSeconds(now.getSeconds() + offsetSec);
+            // Force UTC+5 time synchronization matching Quotex broker layout
+            const utc = now.getTime() + (now.getTimezoneOffset() * 60000);
+            const brokerTime = new Date(utc + (3600000 * 5) + (offsetSec * 1000));
 
-            const utcHours = String(now.getUTCHours()).padStart(2, '0');
-            const utcMinutes = String(now.getUTCMinutes()).padStart(2, '0');
-            const utcSeconds = String(now.getUTCSeconds()).padStart(2, '0');
+            const hours = String(brokerTime.getHours()).padStart(2, '0');
+            const minutes = String(brokerTime.getMinutes()).padStart(2, '0');
+            const seconds = String(brokerTime.getSeconds()).padStart(2, '0');
             
-            document.getElementById('brokerClock').innerText = `${utcHours}:${utcMinutes}:${utcSeconds}`;
+            document.getElementById('brokerClock').innerText = `${hours}:${minutes}:${seconds}`;
             
-            serverSecond = now.getUTCSeconds();
+            serverSecond = brokerTime.getSeconds();
             const phaseEl = document.getElementById('candlePhaseStatus');
 
             if (serverSecond >= 50 && serverSecond <= 59) {
@@ -573,7 +575,7 @@
             const offset = document.getElementById('timeOffset').value;
             
             document.getElementById('activePairDisplay').innerText = `Asset: ${asset} (${timeframe})`;
-            alert(`Settings saved successfully! Time Offset: ${offset}s`);
+            alert(`Settings saved successfully! UTC+5 Locked with Offset: ${offset}s`);
             switchTab('signalView');
         }
 
@@ -608,7 +610,7 @@
                         signal: "DOWN 📉", 
                         class: "down", 
                         winRate: "89.1% WIN PROBABILITY",
-                        logic: "Broker server data match: Resistance barrier holding firm in final closing seconds. High downward selling pressure expected on next candle." 
+                        logic: "Broker server dataMatch: Resistance barrier holding firm in final closing seconds. High downward selling pressure expected on next candle." 
                     },
                     { 
                         signal: "NO TRADE ⚠️", 
