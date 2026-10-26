@@ -100,7 +100,7 @@
             border: 1px solid rgba(0, 242, 254, 0.2);
             border-radius: 24px;
             box-shadow: 0 0 40px rgba(0, 0, 0, 0.8), inset 0 0 20px rgba(0, 242, 254, 0.05);
-            margin-bottom: 30px;
+            margin-bottom: 20px;
         }
 
         .view-section { display: none; }
@@ -406,6 +406,21 @@
             background: #00f2fe;
             color: #030712;
         }
+
+        /* Footer Copyright & Disclaimer Styling */
+        footer {
+            width: 100%;
+            max-width: 500px;
+            text-align: center;
+            font-size: 10px;
+            color: #64748b;
+            padding: 0 10px 20px 10px;
+            line-height: 1.4;
+        }
+        footer span {
+            color: #00f2fe;
+            font-weight: 600;
+        }
     </style>
 </head>
 <body>
@@ -427,7 +442,7 @@
 
             <div class="timer-info-bar">
                 <span id="activePairDisplay">Asset: EUR/USD (OTC)</span>
-                <span>Mode: 10s Late-Entry</span>
+                <span>Mode: Advanced Neural AI Sync</span>
             </div>
 
             <!-- Neural Core Orbit Animation -->
@@ -456,7 +471,7 @@
             <button class="btn-orbit" onclick="runOrbitAnalysisDirect()">RUN ORBIT AI ANALYSIS ⚡</button>
 
             <div class="server-time-box">
-                <div class="broker-clock-label">Quotex Server Time (UTC+5 Locked)</div>
+                <div class="broker-clock-label">Quotex Server Time (Synced & Adjusted)</div>
                 <div id="brokerClock" class="broker-clock-display">00:00:00</div>
                 <div id="candlePhaseStatus" class="candle-phase-status">Candle Building Phase...</div>
             </div>
@@ -503,8 +518,9 @@
 
             <div class="form-group">
                 <label>Manual Time Offset (Seconds)</label>
-                <input type="number" id="timeOffset" value="0" min="-300" max="300" placeholder="0">
-                <small style="color: #94a3b8; font-size: 10px; display: block; margin-top: 4px;">Fine-tune if needed (e.g. +1 or -1 sec).</small>
+                <!-- Default offset set to -90 seconds to perfectly cover the 1.5 min difference -->
+                <input type="number" id="timeOffset" value="-90" min="-3600" max="3600" placeholder="-90">
+                <small style="color: #94a3b8; font-size: 10px; display: block; margin-top: 4px;">Adjust seconds if needed to match broker chart.</small>
             </div>
 
             <div class="form-group">
@@ -526,15 +542,20 @@
 
     </div>
 
+    <!-- Footer Disclaimer & Copyright -->
+    <footer>
+        <p style="margin-bottom: 4px;">⚠️ <strong>Binary Trading Disclaimer:</strong> Trading binary options carries high financial risk. Use signals at your own discretion.</p>
+        <p>© 2026 <span>Adnan SoftWares Solutions Pakistan</span>. All Rights Reserved.</p>
+    </footer>
+
     <script>
         let serverSecond = 0;
 
-        // Exact Quotex UTC+5 Server Time Synchronization Logic
+        // Exact Quotex UTC+5 Server Time Synchronization with Offset Support
         setInterval(() => {
             const now = new Date();
-            const offsetSec = parseInt(document.getElementById('timeOffset').value) || 0;
+            const offsetSec = parseInt(document.getElementById('timeOffset').value) || -90;
             
-            // Force UTC+5 time synchronization matching Quotex broker layout
             const utc = now.getTime() + (now.getTimezoneOffset() * 60000);
             const brokerTime = new Date(utc + (3600000 * 5) + (offsetSec * 1000));
 
@@ -575,7 +596,7 @@
             const offset = document.getElementById('timeOffset').value;
             
             document.getElementById('activePairDisplay').innerText = `Asset: ${asset} (${timeframe})`;
-            alert(`Settings saved successfully! UTC+5 Locked with Offset: ${offset}s`);
+            alert(`Settings saved successfully! Time Offset: ${offset}s`);
             switchTab('signalView');
         }
 
@@ -610,7 +631,7 @@
                         signal: "DOWN 📉", 
                         class: "down", 
                         winRate: "89.1% WIN PROBABILITY",
-                        logic: "Broker server dataMatch: Resistance barrier holding firm in final closing seconds. High downward selling pressure expected on next candle." 
+                        logic: "Broker server data match: Resistance barrier holding firm in final closing seconds. High downward selling pressure expected on next candle." 
                     },
                     { 
                         signal: "NO TRADE ⚠️", 
