@@ -19,7 +19,7 @@ app.use(session({
     cookie: { maxAge: 24 * 60 * 60 * 1000 }
 }));
 
-// ==================== DATABASE SCHEMAS (Defined First) ====================
+// ==================== DATABASE SCHEMAS ====================
 const AdminSchema = new mongoose.Schema({
     username: { type: String, required: true, unique: true, default: 'admin' },
     password: { type: String, required: true }
@@ -27,7 +27,7 @@ const AdminSchema = new mongoose.Schema({
 const Admin = mongoose.model('Admin', AdminSchema);
 
 const UserSchema = new mongoose.Schema({
-    email: { type: String, required: true, unique: true },
+    email: { type: String, default: 'user@genzbot.com' },
     password: { type: String, default: 'N/A' },
     activeDeviceId: { type: String, default: null },
     sessionToken: { type: String, default: null },
@@ -164,61 +164,34 @@ app.post('/api/admin/user-action', isAdmin, async (req, res) => {
 });
 
 
-// ==================== USER ACTIVATION & LOGIN API ====================
-app.post('/api/activate', async (req, res) => {
+// ==================== USER LICENSE VERIFICATION API ====================
+app.post('/api/verify-key', async (req, res) => {
     try {
-        const { key, email, deviceId } = req.body;
+        const { key } = req.body;
 
-        if (!key || !email) {
-            return res.json({ success: false, message: 'Please provide both Key and Email!' });
+        if (!key) {
+            return res.json({ success: false, message: 'Please enter a license key!' });
         }
 
         const cleanKey = key.trim();
-        const cleanEmail = email.trim().toLowerCase();
 
-        // 1. Check if Key exists
+        // 1. Check if Key exists in DB
         const keyDoc = await Key.findOne({ key: cleanKey });
         if (!keyDoc) {
-            return res.json({ success: false, message: 'Invalid Activation Key!' });
+            return res.json({ success: false, message: 'Invalid license key!' });
         }
 
         // 2. Check if Key is already used
         if (keyDoc.isUsed) {
-            return res.json({ success: false, message: 'This Key has already been used!' });
+            return res.json({ success: false, message: 'This license key has already been used!' });
         }
 
-        // 3. Check target email binding
-        if (keyDoc.targetEmail && keyDoc.targetEmail !== cleanEmail) {
-            return res.json({ success: false, message: 'This Key is assigned to a different email address!' });
-        }
-
-        // 4. Calculate expiration
-        const expiresAt = new Date();
-        expiresAt.setDate(expiresAt.getDate() + keyDoc.durationDays);
-
-        // 5. Register or update user
-        let user = await User.findOne({ email: cleanEmail });
-        if (!user) {
-            user = new User({
-                email: cleanEmail,
-                password: 'N/A',
-                activeDeviceId: deviceId || 'device_' + Math.random(),
-                planExpiresAt: expiresAt
-            });
-        } else {
-            user.planExpiresAt = expiresAt;
-            if (!user.activeDeviceId) {
-                user.activeDeviceId = deviceId || 'device_' + Math.random();
-            }
-        }
-        await user.save();
-
-        // 6. Mark key as used
+        // 3. Mark key as used
         keyDoc.isUsed = true;
-        keyDoc.usedBy = cleanEmail;
+        keyDoc.usedBy = 'Web User';
         await keyDoc.save();
 
-        res.json({ success: true, message: 'AI Activated Successfully!', redirectUrl: '/dashboard.html' });
+        res.json({ success: true, message: 'AI Activated Successfully!' });
     } catch (err) {
         res.status(500).json({ success: false, message: err.message });
     }
