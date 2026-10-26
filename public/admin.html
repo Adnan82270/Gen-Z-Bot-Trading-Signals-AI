@@ -1,190 +1,177 @@
-<!-- Admin Login Overlay -->
-<div id="adminLoginModal" style="position: fixed; inset: 0; background: rgba(3,7,18,0.95); z-index: 999; display: flex; justify-content: center; align-items: center;">
-    <div style="background: rgba(13,20,35,0.95); border: 1px solid #00f2fe; padding: 30px; border-radius: 16px; text-align: center; width: 320px; box-shadow: 0 0 30px rgba(0,242,254,0.3);">
-        <h2 style="font-family:'Orbitron',sans-serif; color:#00f2fe; font-size:16px; margin-bottom:15px;">Admin Login</h2>
-        <input type="text" id="adminUser" placeholder="Username" style="width:100%; padding:10px; margin-bottom:10px; background:#09101d; border:1px solid rgba(0,242,254,0.3); color:#fff; border-radius:8px;">
-        <input type="password" id="adminPass" placeholder="Password" style="width:100%; padding:10px; margin-bottom:15px; background:#09101d; border:1px solid rgba(0,242,254,0.3); color:#fff; border-radius:8px;">
-        <button onclick="loginAdmin()" style="width:100%; padding:10px; background:linear-gradient(135deg, #00f2fe, #4facfe); border:none; color:#030712; font-weight:700; border-radius:8px; cursor:pointer;">LOGIN TO ADMIN</button>
-    </div>
-</div>
+const express = require('express');
+const mongoose = require('mongoose');
+const session = require('express-session');
+const bcrypt = require('bcryptjs');
+const path = require('path');
 
-<script>
-    async function loginAdmin() {
-        const u = document.getElementById('adminUser').value;
-        const p = document.getElementById('adminPass').value;
+const app = express();
+const PORT = process.env.PORT || 3000;
 
-        const res = await fetch('/api/admin/login', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ username: u, password: p })
-        });
-        const data = await res.json();
-        
-        if (data.success) {
-            document.getElementById('adminLoginModal').style.display = 'none';
-            loadAdminData(); // Load table data after login
-        } else {
-            alert(data.message);
-        }
+// Middleware
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+app.use(express.static(path.join(__dirname, 'public')));
+
+app.use(session({
+    secret: 'genz_bot_super_secret_key_2026',
+    resave: false,
+    saveUninitialized: false,
+    cookie: { maxAge: 24 * 60 * 60 * 1000 }
+}));
+
+// MongoDB Atlas Database Connection
+const MONGO_URI = process.env.MONGO_URI || 'YOUR_MONGODB_ATLAS_URI';
+mongoose.connect(MONGO_URI)
+.then(async () => {
+    console.log('MongoDB Atlas Connected Successfully!');
+    // Initialize default admin if not exists
+    const adminCount = await Admin.countDocuments();
+    if (adminCount === 0) {
+        const hashedPassword = await bcrypt.hash('admin12345', 10);
+        await Admin.create({ username: 'admin', password: hashedPassword });
+        console.log('Default Admin Account Created (username: admin, pass: admin12345)');
     }
-</script>
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gen-Z Bot - Admin Panel</title>
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
-    <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
-        body { background-color: #030712; color: #fff; padding: 20px; display: flex; flex-direction: column; align-items: center; }
-        
-        .admin-card {
-            width: 100%; max-width: 800px; background: rgba(13, 20, 35, 0.9);
-            border: 1px solid rgba(0, 242, 254, 0.3); border-radius: 16px;
-            padding: 25px; margin-bottom: 25px; box-shadow: 0 0 30px rgba(0, 242, 254, 0.1);
+})
+.catch(err => console.error('MongoDB Connection Error:', err));
+
+// ==================== DATABASE SCHEMAS ====================
+
+const AdminSchema = new mongoose.Schema({
+    username: { type: String, required: true, unique: true, default: 'admin' },
+    password: { type: String, required: true }
+});
+const Admin = mongoose.model('Admin', AdminSchema);
+
+const UserSchema = new mongoose.Schema({
+    email: { type: String, required: true, unique: true },
+    password: { type: String, required: true },
+    activeDeviceId: { type: String, default: null },
+    sessionToken: { type: String, default: null },
+    planExpiresAt: { type: Date, default: null },
+    createdAt: { type: Date, default: Date.now }
+});
+const User = mongoose.model('User', UserSchema);
+
+const KeySchema = new mongoose.Schema({
+    key: { type: String, required: true, unique: true },
+    durationDays: { type: Number, required: true },
+    targetEmail: { type: String, default: null }, // Dedicated User Email
+    isUsed: { type: Boolean, default: false },
+    usedBy: { type: String, default: null },
+    createdAt: { type: Date, default: Date.now }
+});
+const Key = mongoose.model('Key', KeySchema);
+
+// ==================== MIDDLEWARES ====================
+
+function isAdmin(req, res, next) {
+    if (req.session && req.session.isAdmin) {
+        return next();
+    }
+    return res.status(403).json({ success: false, message: 'Access Denied: Admin privileges required.' });
+}
+
+function generateActivationKey(length = 16) {
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    let key = '';
+    for (let i = 0; i < length; i++) {
+        if (i > 0 && i % 4 === 0) key += '-';
+        key += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    return key;
+}
+
+// ==================== ADMIN API ROUTES ====================
+
+// 1. Admin Login API
+app.post('/api/admin/login', async (req, res) => {
+    try {
+        const { username, password } = req.body;
+        const adminDoc = await Admin.findOne({ username });
+        if (!adminDoc) {
+            return res.json({ success: false, message: 'Invalid Admin Credentials!' });
         }
-        h2 { font-family: 'Orbitron', sans-serif; color: #00f2fe; margin-bottom: 20px; font-size: 18px; }
-        
-        .form-row { display: flex; gap: 10px; margin-bottom: 20px; }
-        select, input, button {
-            padding: 12px; border-radius: 8px; border: 1px solid rgba(0, 242, 254, 0.3);
-            background: #09101d; color: #fff; font-size: 13px; outline: none;
+        const isMatch = await bcrypt.compare(password, adminDoc.password);
+        if (isMatch) {
+            req.session.isAdmin = true;
+            return res.json({ success: true, message: 'Admin authenticated successfully!' });
         }
-        button {
-            background: linear-gradient(135deg, #00f2fe, #4facfe); color: #030712;
-            font-weight: 700; cursor: pointer; border: none; transition: 0.3s;
-        }
-        button:hover { opacity: 0.9; transform: translateY(-1px); }
-        
-        table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 12px; }
-        th, td { padding: 10px; text-align: left; border-bottom: 1px solid rgba(255, 255, 255, 0.08); }
-        th { color: #00f2fe; font-family: 'Orbitron', sans-serif; font-size: 11px; }
-        
-        .badge-unused { color: #00ff80; background: rgba(0, 255, 128, 0.1); padding: 3px 8px; border-radius: 4px; }
-        .badge-used { color: #ef4444; background: rgba(239, 68, 68, 0.1); padding: 3px 8px; border-radius: 4px; }
-        .key-text { font-family: monospace; font-size: 14px; color: #00f2fe; letter-spacing: 1px; }
-        
-        .action-btn { background: rgba(239, 68, 68, 0.2); color: #ef4444; border: 1px solid #ef4444; padding: 4px 8px; border-radius: 4px; cursor: pointer; }
-    </style>
-</head>
-<body>
+        return res.json({ success: false, message: 'Invalid Admin Credentials!' });
+    } catch (err) {
+        res.status(500).json({ success: false, message: err.message });
+    }
+});
 
-    <!-- Key Generator Section -->
-    <div class="admin-card">
-        <h2>🔑 License Key Generator</h2>
-        <div class="form-row">
-            <select id="durationSelect">
-                <option value="1">1 Day Trial</option>
-                <option value="7">7 Days Pass</option>
-                <option value="30" selected>30 Days Standard</option>
-                <option value="365">1 Year VIP</option>
-            </select>
-            <button onclick="generateKey()">Generate New Key ⚡</button>
-        </div>
-        <div id="generatedKeyBox" style="display:none; background: rgba(0,255,128,0.1); border: 1px dashed #00ff80; padding: 12px; border-radius: 8px; text-align: center;">
-            <span style="color:#94a3b8; font-size:11px;">NEW ACTIVATION KEY:</span><br>
-            <strong id="keyDisplay" class="key-text">XXXX-XXXX-XXXX-XXXX</strong>
-        </div>
-    </div>
-
-    <!-- Active Keys & Registered Users Table -->
-    <div class="admin-card">
-        <h2>👥 Users & Activation Keys Management</h2>
-        <button onclick="loadAdminData()" style="margin-bottom: 15px;">Refresh Data 🔄</button>
+// 2. Change Admin Password API
+app.post('/api/admin/change-password', isAdmin, async (req, res) => {
+    try {
+        const { currentPassword, newPassword } = req.body;
+        const adminDoc = await Admin.findOne();
         
-        <h3 style="font-size:13px; color:#94a3b8; margin-top:10px;">Generated Keys:</h3>
-        <table>
-            <thead>
-                <tr>
-                    <th>Key</th>
-                    <th>Duration</th>
-                    <th>Status</th>
-                    <th>Used By</th>
-                </tr>
-            </thead>
-            <tbody id="keysTableBody">
-                <!-- Data loaded dynamically -->
-            </tbody>
-        </table>
-
-        <h3 style="font-size:13px; color:#94a3b8; margin-top:25px;">Registered Users:</h3>
-        <table>
-            <thead>
-                <tr>
-                    <th>Email</th>
-                    <th>Status</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody id="usersTableBody">
-                <!-- Data loaded dynamically -->
-            </tbody>
-        </table>
-    </div>
-
-    <script>
-        async function generateKey() {
-            const duration = document.getElementById('durationSelect').value;
-            const res = await fetch('/api/admin/generate-key', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ durationDays: duration })
-            });
-            const data = await res.json();
-            if (data.success) {
-                document.getElementById('generatedKeyBox').style.display = 'block';
-                document.getElementById('keyDisplay').innerText = data.key;
-                loadAdminData();
-            } else {
-                alert(data.message);
-            }
+        const isMatch = await bcrypt.compare(currentPassword, adminDoc.password);
+        if (!isMatch) {
+            return res.json({ success: false, message: 'Current password is incorrect!' });
         }
 
-        async function loadAdminData() {
-            const res = await fetch('/api/admin/dashboard-data');
-            const data = await res.json();
-            if (data.success) {
-                // Populate Keys Table
-                const keysTbody = document.getElementById('keysTableBody');
-                keysTbody.innerHTML = data.keys.map(k => `
-                    <tr>
-                        <td class="key-text">${k.key}</td>
-                        <td>${k.durationDays} Days</td>
-                        <td><span class="${k.isUsed ? 'badge-used' : 'badge-unused'}">${k.isUsed ? 'USED' : 'ACTIVE'}</span></td>
-                        <td>${k.usedBy || 'N/A'}</td>
-                    </tr>
-                `).join('');
+        const hashedNewPassword = await bcrypt.hash(newPassword, 10);
+        adminDoc.password = hashedNewPassword;
+        await adminDoc.save();
 
-                // Populate Users Table
-                const usersTbody = document.getElementById('usersTableBody');
-                usersTbody.innerHTML = data.users.map(u => `
-                    <tr>
-                        <td>${u.email}</td>
-                        <td>${u.activeDeviceId ? '🔒 Device Locked' : '🟢 Free Session'}</td>
-                        <td>
-                            <button class="action-btn" onclick="userAction('${u._id}', 'unlock_device')">Reset Lock</button>
-                            <button class="action-btn" onclick="userAction('${u._id}', 'delete')">Delete</button>
-                        </td>
-                    </tr>
-                `).join('');
-            }
+        res.json({ success: true, message: 'Admin password updated successfully!' });
+    } catch (err) {
+        res.status(500).json({ success: false, message: err.message });
+    }
+});
+
+// 3. Generate Key with Target Email Option
+app.post('/api/admin/generate-key', isAdmin, async (req, res) => {
+    try {
+        const { durationDays, targetEmail } = req.body;
+        const newKey = generateActivationKey();
+
+        const keyDoc = new Key({
+            key: newKey,
+            durationDays: parseInt(durationDays) || 30,
+            targetEmail: targetEmail ? targetEmail.trim().toLowerCase() : null
+        });
+
+        await keyDoc.save();
+        res.json({ success: true, key: newKey, durationDays: keyDoc.durationDays, targetEmail: keyDoc.targetEmail });
+    } catch (err) {
+        res.status(500).json({ success: false, message: err.message });
+    }
+});
+
+// 4. Get Admin Dashboard Data
+app.get('/api/admin/dashboard-data', isAdmin, async (req, res) => {
+    try {
+        const keys = await Key.find().sort({ createdAt: -1 });
+        const users = await User.find().select('-password').sort({ createdAt: -1 });
+        res.json({ success: true, keys, users });
+    } catch (err) {
+        res.status(500).json({ success: false, message: err.message });
+    }
+});
+
+// 5. User Management Actions
+app.post('/api/admin/user-action', isAdmin, async (req, res) => {
+    try {
+        const { userId, action } = req.body;
+        if (action === 'delete') {
+            await User.findByIdAndDelete(userId);
+            return res.json({ success: true, message: 'User account removed.' });
+        } else if (action === 'unlock_device') {
+            await User.findByIdAndUpdate(userId, { activeDeviceId: null, sessionToken: null });
+            return res.json({ success: true, message: 'Device lock reset successfully.' });
         }
+    } catch (err) {
+        res.status(500).json({ success: false, message: err.message });
+    }
+});
 
-        async function userAction(userId, action) {
-            if(!confirm('Are you sure you want to perform this action?')) return;
-            const res = await fetch('/api/admin/user-action', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ userId, action })
-            });
-            const data = await res.json();
-            alert(data.message);
-            loadAdminData();
-        }
+// Routes
+app.get('/admin', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'admin.html'));
+});
 
-        // Auto load on page view
-        loadAdminData();
-    </script>
-</body>
-</html>
+app.listen(PORT, () => console.log(`Server live on port ${PORT}`));
