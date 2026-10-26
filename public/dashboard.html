@@ -37,48 +37,34 @@
             pointer-events: none;
         }
 
+        /* Perfectly Aligned Clean Header */
         header {
             width: 100%;
-            max-width: 600px;
+            max-width: 500px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 20px;
+            padding: 20px 25px 10px 25px;
             z-index: 10;
         }
 
         .logo-area {
             font-family: 'Orbitron', sans-serif;
-            font-size: 18px;
+            font-size: 16px;
             font-weight: 800;
             color: #00f2fe;
             letter-spacing: 1px;
         }
 
-        .header-right {
+        .header-menu {
             display: flex;
             align-items: center;
-            gap: 12px;
-        }
-
-        .live-clock {
-            font-family: 'Orbitron', sans-serif;
-            font-size: 13px;
-            color: #00ff80;
-            background: rgba(0, 255, 128, 0.08);
-            padding: 6px 12px;
-            border-radius: 8px;
-            border: 1px solid rgba(0, 255, 128, 0.2);
-        }
-
-        .nav-tabs {
-            display: flex;
             gap: 8px;
         }
 
-        .tab-btn {
-            background: rgba(13, 20, 35, 0.8);
-            border: 1px solid rgba(0, 242, 254, 0.2);
+        .menu-btn {
+            background: rgba(13, 20, 35, 0.9);
+            border: 1px solid rgba(0, 242, 254, 0.25);
             color: #94a3b8;
             padding: 6px 12px;
             border-radius: 8px;
@@ -86,26 +72,21 @@
             font-weight: 600;
             cursor: pointer;
             transition: all 0.3s ease;
+            text-decoration: none;
         }
 
-        .tab-btn.active, .tab-btn:hover {
+        .menu-btn.active, .menu-btn:hover {
             background: rgba(0, 242, 254, 0.15);
             border-color: #00f2fe;
             color: #ffffff;
         }
 
-        .logout-icon-btn {
-            background: rgba(239, 68, 68, 0.1);
-            border: 1px solid rgba(239, 68, 68, 0.3);
+        .menu-btn.logout {
+            border-color: rgba(239, 68, 68, 0.4);
             color: #ef4444;
-            padding: 6px 12px;
-            border-radius: 8px;
-            font-size: 11px;
-            font-weight: 600;
-            text-decoration: none;
-            transition: all 0.3s ease;
+            background: rgba(239, 68, 68, 0.08);
         }
-        .logout-icon-btn:hover {
+        .menu-btn.logout:hover {
             background: rgba(239, 68, 68, 0.2);
         }
 
@@ -115,7 +96,7 @@
             width: 100%;
             max-width: 500px;
             padding: 25px;
-            background: rgba(13, 20, 35, 0.8);
+            background: rgba(13, 20, 35, 0.85);
             backdrop-filter: blur(16px);
             border: 1px solid rgba(0, 242, 254, 0.2);
             border-radius: 24px;
@@ -128,8 +109,8 @@
 
         .neural-core-container {
             position: relative;
-            width: 180px;
-            height: 180px;
+            width: 160px;
+            height: 160px;
             margin: 0 auto 15px auto;
             display: flex;
             justify-content: center;
@@ -138,8 +119,8 @@
 
         .bg-orbit-system {
             position: absolute;
-            width: 180px;
-            height: 180px;
+            width: 160px;
+            height: 160px;
             border-radius: 50%;
             border: 1px dashed rgba(0, 242, 254, 0.2);
             animation: rotateClockwise 15s linear infinite;
@@ -156,12 +137,12 @@
         }
 
         .neural-sphere {
-            width: 120px;
-            height: 120px;
+            width: 110px;
+            height: 110px;
             background: radial-gradient(circle at 35% 35%, #00f2fe 0%, #0c2d48 60%, #030712 100%);
             border-radius: 50%;
             position: relative;
-            box-shadow: 0 0 30px rgba(0, 242, 254, 0.4), inset 0 0 15px rgba(255, 255, 255, 0.3);
+            box-shadow: 0 0 25px rgba(0, 242, 254, 0.4), inset 0 0 12px rgba(255, 255, 255, 0.3);
             overflow: hidden;
             z-index: 2;
         }
@@ -174,7 +155,7 @@
                 radial-gradient(circle, rgba(255,255,255,0.2) 1px, transparent 1px),
                 linear-gradient(to right, rgba(0,242,254,0.1) 1px, transparent 1px),
                 linear-gradient(to bottom, rgba(0,242,254,0.1) 1px, transparent 1px);
-            background-size: 16px 16px;
+            background-size: 14px 14px;
             opacity: 0.6;
         }
 
@@ -198,8 +179,8 @@
 
         .orbit-ring-outer {
             position: absolute;
-            width: 146px;
-            height: 146px;
+            width: 134px;
+            height: 134px;
             border-radius: 50%;
             border: 1px dashed rgba(0, 242, 254, 0.25);
             animation: rotateClockwise 8s linear infinite;
@@ -207,21 +188,21 @@
         }
         .dot-cw {
             position: absolute;
-            width: 6px;
-            height: 6px;
+            width: 5px;
+            height: 5px;
             background: #00f2fe;
             border-radius: 50%;
             box-shadow: 0 0 8px #00f2fe;
         }
-        .dot-cw:nth-child(1) { top: 0; left: calc(50% - 3px); }
-        .dot-cw:nth-child(2) { bottom: 0; left: calc(50% - 3px); }
-        .dot-cw:nth-child(3) { left: 0; top: calc(50% - 3px); }
-        .dot-cw:nth-child(4) { right: 0; top: calc(50% - 3px); }
+        .dot-cw:nth-child(1) { top: 0; left: calc(50% - 2.5px); }
+        .dot-cw:nth-child(2) { bottom: 0; left: calc(50% - 2.5px); }
+        .dot-cw:nth-child(3) { left: 0; top: calc(50% - 2.5px); }
+        .dot-cw:nth-child(4) { right: 0; top: calc(50% - 2.5px); }
 
         .orbit-ring-inner {
             position: absolute;
-            width: 132px;
-            height: 132px;
+            width: 120px;
+            height: 120px;
             border-radius: 50%;
             border: 1px dashed rgba(79, 172, 254, 0.2);
             animation: rotateAntiClockwise 6s linear infinite;
@@ -229,8 +210,8 @@
         }
         .dot-acw {
             position: absolute;
-            width: 5px;
-            height: 5px;
+            width: 4px;
+            height: 4px;
             background: #4facfe;
             border-radius: 50%;
             box-shadow: 0 0 6px #4facfe;
@@ -251,10 +232,10 @@
             background: rgba(0, 255, 128, 0.1);
             border: 1px solid rgba(0, 255, 128, 0.3);
             color: #00ff80;
-            padding: 8px 16px;
-            border-radius: 12px;
+            padding: 6px 14px;
+            border-radius: 10px;
             font-family: 'Orbitron', sans-serif;
-            font-size: 11px;
+            font-size: 10px;
             font-weight: 700;
             text-align: center;
             margin-bottom: 12px;
@@ -266,13 +247,14 @@
             justify-content: space-between;
             font-size: 11px;
             color: #94a3b8;
-            margin-bottom: 15px;
+            margin-bottom: 12px;
             background: rgba(255, 255, 255, 0.03);
             padding: 8px 12px;
             border-radius: 8px;
             border: 1px solid rgba(255, 255, 255, 0.05);
         }
 
+        /* Orbit Button */
         .btn-orbit {
             width: 100%;
             padding: 16px;
@@ -287,24 +269,55 @@
             transition: all 0.3s ease;
             box-shadow: 0 4px 25px rgba(0, 242, 254, 0.4);
             letter-spacing: 1px;
-            margin-bottom: 20px;
+            margin-bottom: 12px;
         }
         .btn-orbit:hover {
             transform: translateY(-2px);
             box-shadow: 0 6px 30px rgba(0, 242, 254, 0.6);
         }
 
+        /* Broker Server Clock & Status directly below the button */
+        .server-time-box {
+            background: rgba(3, 7, 18, 0.9);
+            border: 1px solid rgba(0, 242, 254, 0.25);
+            border-radius: 12px;
+            padding: 12px;
+            text-align: center;
+            margin-bottom: 15px;
+        }
+        .broker-clock-label {
+            font-size: 9px;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: #94a3b8;
+            margin-bottom: 4px;
+        }
+        .broker-clock-display {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 16px;
+            font-weight: 700;
+            color: #00ff80;
+            letter-spacing: 1px;
+            margin-bottom: 4px;
+        }
+        .candle-phase-status {
+            font-size: 11px;
+            color: #00f2fe;
+            font-weight: 500;
+        }
+
+        /* Signal Display Box */
         .signal-display {
             background: rgba(3, 7, 18, 0.85);
             border: 1px solid rgba(0, 242, 254, 0.3);
             border-radius: 14px;
-            padding: 18px;
+            padding: 16px;
             text-align: center;
-            margin-bottom: 15px;
+            margin-bottom: 10px;
             display: none;
         }
         .signal-title {
-            font-size: 11px;
+            font-size: 10px;
             color: #94a3b8;
             text-transform: uppercase;
             letter-spacing: 2px;
@@ -321,19 +334,19 @@
             background: rgba(0, 255, 128, 0.15);
             border: 1px solid rgba(0, 255, 128, 0.4);
             color: #00ff80;
-            padding: 4px 10px;
+            padding: 3px 8px;
             border-radius: 6px;
             font-family: 'Orbitron', sans-serif;
-            font-size: 10px;
+            font-size: 9px;
             font-weight: 700;
-            margin-bottom: 8px;
+            margin-bottom: 6px;
         }
         .signal-value {
             font-family: 'Orbitron', sans-serif;
-            font-size: 26px;
+            font-size: 24px;
             font-weight: 900;
             letter-spacing: 2px;
-            margin-bottom: 10px;
+            margin-bottom: 8px;
         }
         .signal-value.up { color: #00ff80; text-shadow: 0 0 15px rgba(0, 255, 128, 0.5); }
         .signal-value.down { color: #ef4444; text-shadow: 0 0 15px rgba(239, 68, 68, 0.5); }
@@ -344,267 +357,7 @@
             color: #cbd5e1;
             text-align: left;
             background: rgba(255, 255, 255, 0.03);
-            padding: 12px;
+            padding: 10px;
             border-radius: 8px;
             border-left: 3px solid #00f2fe;
-            line-height: 1.5;
-        }
-
-        .form-group {
-            margin-bottom: 16px;
-            text-align: left;
-        }
-        .form-group label {
-            display: block;
-            font-size: 11px;
-            color: #94a3b8;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            margin-bottom: 6px;
-            font-weight: 600;
-        }
-        .form-group select, .form-group input {
-            width: 100%;
-            padding: 12px 16px;
-            background: rgba(3, 7, 18, 0.7);
-            border: 1px solid rgba(0, 242, 254, 0.3);
-            border-radius: 10px;
-            color: #ffffff;
-            font-size: 13px;
-            outline: none;
-            transition: all 0.3s ease;
-        }
-        .form-group select:focus, .form-group input:focus {
-            border-color: #00f2fe;
-            box-shadow: 0 0 10px rgba(0, 242, 254, 0.2);
-        }
-
-        .btn-save {
-            width: 100%;
-            padding: 14px;
-            background: rgba(0, 242, 254, 0.15);
-            border: 1px solid #00f2fe;
-            border-radius: 10px;
-            color: #00f2fe;
-            font-family: 'Orbitron', sans-serif;
-            font-size: 13px;
-            font-weight: 700;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            margin-top: 10px;
-        }
-        .btn-save:hover {
-            background: #00f2fe;
-            color: #030712;
-        }
-    </style>
-</head>
-<body>
-
-    <header>
-        <div class="logo-area">Gen-Z Bot</div>
-        <div class="header-right">
-            <div id="liveClock" class="live-clock">00:00:00</div>
-            <div class="nav-tabs">
-                <button class="tab-btn active" onclick="switchTab('signalView')">Signal</button>
-                <button class="tab-btn" onclick="switchTab('settingsView')">Settings</button>
-            </div>
-            <a href="/" class="logout-icon-btn">Logout</a>
-        </div>
-    </header>
-
-    <div class="main-container">
-        
-        <!-- SIGNALS & ORBIT VIEW -->
-        <div id="signalView" class="view-section active">
-            <div class="status-badge">STATUS: CONNECTED & LIVE 🚀</div>
-
-            <div class="timer-info-bar">
-                <span id="activePairDisplay">Asset: EUR/USD (OTC)</span>
-                <span id="candleTimerState">Monitoring Market...</span>
-            </div>
-
-            <!-- Neural Core Orbit Animation -->
-            <div class="neural-core-container">
-                <div class="bg-orbit-system">
-                    <div class="bg-orbit-node"></div>
-                </div>
-                <div class="orbit-ring-outer">
-                    <div class="dot-cw"></div>
-                    <div class="dot-cw"></div>
-                    <div class="dot-cw"></div>
-                    <div class="dot-cw"></div>
-                </div>
-                <div class="orbit-ring-inner">
-                    <div class="dot-acw"></div>
-                    <div class="dot-acw"></div>
-                </div>
-                <div class="neural-sphere">
-                    <div class="particle p1"></div>
-                    <div class="particle p2"></div>
-                    <div class="particle p3"></div>
-                    <div class="particle p4"></div>
-                </div>
-            </div>
-
-            <button class="btn-orbit" onclick="runLateCandleAnalysis()">RUN ORBIT AI ANALYSIS ⚡</button>
-
-            <!-- Signal Output Display -->
-            <div id="signalDisplay" class="signal-display">
-                <div class="signal-title">Generated Next-Candle Signal</div>
-                <div id="signalExpiryInfo" class="signal-expiry">Target: Next Candle Expiry (1 Min)</div>
-                <div id="winRateBadge" class="win-rate-badge">WIN PROBABILITY: 89.2%</div>
-                <div id="signalValue" class="signal-value up">UP 🚀</div>
-                <div id="analysisBox" class="analysis-box">
-                    Late candle confirmation active: Analyzing final price rejection and volume.
-                </div>
-            </div>
-        </div>
-
-        <!-- SETTINGS VIEW -->
-        <div id="settingsView" class="view-section">
-            <h2 style="font-family:'Orbitron',sans-serif; font-size:15px; margin-bottom:18px; color:#00f2fe;">Quotex Trading Settings</h2>
-            
-            <div class="form-group">
-                <label>Select Asset / Pair</label>
-                <select id="assetSelect">
-                    <option value="EUR/USD">EUR/USD (Normal)</option>
-                    <option value="EUR/USD-OTC" selected>EUR/USD (OTC)</option>
-                    <option value="GBP/USD">GBP/USD (Normal)</option>
-                    <option value="GBP/USD-OTC">GBP/USD (OTC)</option>
-                    <option value="USD/JPY">USD/JPY</option>
-                    <option value="AUD/CAD-OTC">AUD/CAD (OTC)</option>
-                    <option value="EUR/JPY">EUR/JPY</option>
-                    <option value="NZD/USD-OTC">NZD/USD (OTC)</option>
-                </select>
-            </div>
-
-            <div class="form-group">
-                <label>Candle Timeframe Sync</label>
-                <select id="candleTime">
-                    <option value="5s">5 Seconds</option>
-                    <option value="15s">15 Seconds</option>
-                    <option value="30s">30 Seconds</option>
-                    <option value="1m" selected>1 Minute (Standard)</option>
-                    <option value="5m">5 Minutes</option>
-                </select>
-            </div>
-
-            <div class="form-group">
-                <label>Trade Amount ($)</label>
-                <input type="number" id="tradeAmount" value="10" min="1" max="1000">
-            </div>
-
-            <div class="form-group">
-                <label>Risk Filter Mode</label>
-                <select id="riskLevel">
-                    <option value="conservative">Conservative (Strict Filter)</option>
-                    <option value="balanced" selected>Balanced (Standard)</option>
-                    <option value="aggressive">Aggressive</option>
-                </select>
-            </div>
-
-            <button class="btn-save" onclick="saveSettings()">Save & Sync Settings</button>
-        </div>
-
-    </div>
-
-    <script>
-        let currentSecond = 0;
-
-        // Live Clock and Late-Candle Window Timer Sync
-        setInterval(() => {
-            const now = new Date();
-            document.getElementById('liveClock').innerText = now.toTimeString().split(' ')[0];
-            
-            currentSecond = now.getSeconds();
-            const stateEl = document.getElementById('candleTimerState');
-
-            // 50 to 59 seconds is the golden late-candle entry window
-            if (currentSecond >= 50 && currentSecond <= 59) {
-                stateEl.innerText = `🔥 Golden Entry Window (${60 - currentSecond}s left)! Click for Next Candle`;
-                stateEl.style.color = "#00ff80";
-            } else if (currentSecond >= 30 && currentSecond < 50) {
-                stateEl.innerText = `Analyzing Candle Momentum (${currentSecond}s)...`;
-                stateEl.style.color = "#00f2fe";
-            } else {
-                stateEl.innerText = `Candle Building Phase (${currentSecond}s)`;
-                stateEl.style.color = "#94a3b8";
-            }
-        }, 1000);
-
-        function switchTab(viewId) {
-            document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
-            document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
-            
-            document.getElementById(viewId).classList.add('active');
-            event.currentTarget.classList.add('active');
-        }
-
-        function saveSettings() {
-            const asset = document.getElementById('assetSelect').value;
-            const timeframe = document.getElementById('candleTime').value;
-            
-            document.getElementById('activePairDisplay').innerText = `Asset: ${asset} (${timeframe})`;
-            alert(`Settings saved & synced successfully for ${asset}!`);
-            switchTab('signalView');
-        }
-
-        function runLateCandleAnalysis() {
-            const btn = document.querySelector('.btn-orbit');
-            const display = document.getElementById('signalDisplay');
-            const valEl = document.getElementById('signalValue');
-            const analysisEl = document.getElementById('analysisBox');
-            const expiryEl = document.getElementById('signalExpiryInfo');
-            const winRateEl = document.getElementById('winRateBadge');
-            const timeframe = document.getElementById('candleTime').value;
-            const asset = document.getElementById('assetSelect').value;
-
-            // Intelligent Warning if user clicks too early in candle building phase
-            if (currentSecond < 45 && currentSecond > 10) {
-                alert(`⚠️ Note: You are clicking at ${currentSecond}s. Best entry accuracy is during the last 10 seconds (50s-59s) of the candle! Generating analysis anyway...`);
-            }
-
-            btn.innerText = "SCANNING LATE CANDLE CLOSING...";
-            btn.style.opacity = "0.7";
-            display.style.display = "none";
-
-            setTimeout(() => {
-                btn.innerText = "RUN ORBIT AI ANALYSIS ⚡";
-                btn.style.opacity = "1";
-                display.style.display = "block";
-                expiryEl.innerText = `Target: Next Candle Expiry (${timeframe}) | Asset: ${asset}`;
-
-                // Professional Scenarios with Win Rates
-                const outcomes = [
-                    { 
-                        signal: "UP 🚀", 
-                        class: "up", 
-                        winRate: "91.4% WIN PROBABILITY",
-                        logic: "Late-candle confirmation: Price firmly rejected local support in the final seconds. Volume spike and bullish closing pattern indicate high-probability upward breakout for the next candle." 
-                    },
-                    { 
-                        signal: "DOWN 📉", 
-                        class: "down", 
-                        winRate: "88.7% WIN PROBABILITY",
-                        logic: "Late-candle confirmation: Upper wick rejection observed at key resistance level. Sellers took control in the closing seconds, forecasting downward continuation." 
-                    },
-                    { 
-                        signal: "NO TRADE ⚠️", 
-                        class: "neutral", 
-                        winRate: "45.0% (AVOID)",
-                        logic: "Unstable price action detected in final seconds. Market is ranging tightly without clear direction. Risk filter advises skipping this candle." 
-                    }
-                ];
-
-                const result = outcomes[Math.floor(Math.random() * outcomes.length)];
-
-                valEl.innerText = result.signal;
-                valEl.className = "signal-value " + result.class;
-                winRateEl.innerText = result.winRate;
-                analysisEl.innerHTML = `<strong>Deep Analysis Logic:</strong> ${result.logic}`;
-            }, 1200);
-        }
-    </script>
-</body>
-</html>
+            line-height:
