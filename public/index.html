@@ -122,7 +122,7 @@
             opacity: 0.6;
         }
 
-        /* Inner Glowing Particles */
+        /* Inner Glowing Particles (Increased quantity) */
         .particle {
             position: absolute;
             background: #ffffff;
@@ -130,5 +130,269 @@
             box-shadow: 0 0 6px #00f2fe;
             animation: pulseGlow 2s infinite ease-in-out;
         }
-        .p1 { width: 4px; height: 4px; top: 30%; left: 40%; animation-delay: 0s; }
-        .p2 { width: 5px; height: 5px; top: 60%; left: 70%; animation-delay: 0.5s;
+        .p1 { width: 4px; height: 4px; top: 20%; left: 30%; animation-delay: 0s; }
+        .p2 { width: 5px; height: 5px; top: 50%; left: 80%; animation-delay: 0.4s; }
+        .p3 { width: 3px; height: 3px; top: 75%; left: 25%; animation-delay: 0.8s; }
+        .p4 { width: 6px; height: 6px; top: 25%; left: 65%; animation-delay: 1.2s; }
+        .p5 { width: 4px; height: 4px; top: 45%; left: 45%; animation-delay: 0.6s; }
+        .p6 { width: 5px; height: 5px; top: 35%; left: 15%; animation-delay: 1.0s; }
+        .p7 { width: 3px; height: 3px; top: 85%; left: 60%; animation-delay: 0.2s; }
+        .p8 { width: 5px; height: 5px; top: 65%; left: 50%; animation-delay: 1.4s; }
+        .p9 { width: 4px; height: 4px; top: 15%; left: 55%; animation-delay: 0.7s; }
+
+        @keyframes pulseGlow {
+            0%, 100% { transform: scale(1); opacity: 0.4; }
+            50% { transform: scale(1.6); opacity: 1; }
+        }
+
+        /* Outer 4 Clockwise Dots on Sphere Border */
+        .orbit-ring-outer {
+            position: absolute;
+            width: 140px;
+            height: 140px;
+            border-radius: 50%;
+            border: 1px dashed rgba(0, 242, 254, 0.15);
+            animation: rotateClockwise 8s linear infinite;
+        }
+        .dot-cw {
+            position: absolute;
+            width: 6px;
+            height: 6px;
+            background: #00f2fe;
+            border-radius: 50%;
+            box-shadow: 0 0 8px #00f2fe;
+        }
+        .dot-cw:nth-child(1) { top: 0; left: calc(50% - 3px); }
+        .dot-cw:nth-child(2) { bottom: 0; left: calc(50% - 3px); }
+        .dot-cw:nth-child(3) { left: 0; top: calc(50% - 3px); }
+        .dot-cw:nth-child(4) { right: 0; top: calc(50% - 3px); }
+
+        /* Inner 2 Anti-Clockwise Dots */
+        .orbit-ring-inner {
+            position: absolute;
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            border: 1px dashed rgba(79, 172, 254, 0.15);
+            animation: rotateAntiClockwise 6s linear infinite;
+        }
+        .dot-acw {
+            position: absolute;
+            width: 5px;
+            height: 5px;
+            background: #4facfe;
+            border-radius: 50%;
+            box-shadow: 0 0 6px #4facfe;
+        }
+        .dot-acw:nth-child(1) { top: 15%; left: 15%; }
+        .dot-acw:nth-child(2) { bottom: 15%; right: 15%; }
+
+        @keyframes rotateClockwise {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @keyframes rotateAntiClockwise {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(-360deg); }
+        }
+
+        .core-label {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 11px;
+            color: #64748b;
+            letter-spacing: 2px;
+            margin-bottom: 25px;
+            text-transform: uppercase;
+        }
+
+        /* Input & Button Styling */
+        .input-group {
+            position: relative;
+            margin-bottom: 18px;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 16px 20px 16px 45px;
+            background: rgba(3, 7, 18, 0.6);
+            border: 1px solid rgba(0, 242, 254, 0.3);
+            border-radius: 12px;
+            color: #ffffff;
+            font-size: 14px;
+            outline: none;
+            transition: all 0.3s ease;
+            letter-spacing: 1px;
+        }
+
+        .input-group input:focus {
+            border-color: #00f2fe;
+            box-shadow: 0 0 15px rgba(0, 242, 254, 0.25);
+            background: rgba(3, 7, 18, 0.9);
+        }
+
+        .input-icon {
+            position: absolute;
+            left: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #00f2fe;
+            font-size: 16px;
+        }
+
+        .btn-activate {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, #00f2fe 0%, #4facfe 100%);
+            border: none;
+            border-radius: 12px;
+            color: #030712;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 20px rgba(0, 242, 254, 0.4);
+            letter-spacing: 1px;
+            margin-bottom: 15px;
+        }
+
+        .btn-activate:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 25px rgba(0, 242, 254, 0.6);
+        }
+
+        #error-msg {
+            color: #ef4444;
+            font-size: 12px;
+            margin-top: -8px;
+            margin-bottom: 15px;
+            font-weight: 500;
+            display: none;
+        }
+
+        .links-container {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .action-link {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 16px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 10px;
+            color: #cbd5e1;
+            text-decoration: none;
+            font-size: 12px;
+            transition: all 0.3s ease;
+        }
+
+        .action-link:hover {
+            background: rgba(0, 242, 254, 0.05);
+            border-color: rgba(0, 242, 254, 0.3);
+            color: #ffffff;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div class="shield-icon">
+            <span>🛡️</span> License Authentication
+        </div>
+        <h1>Gen-Z Bot</h1>
+        <div class="subtitle">Trading Signals AI</div>
+
+        <!-- Neural Core Animation Box -->
+        <div class="neural-core-container">
+            <!-- Outer 4 Clockwise Dots -->
+            <div class="orbit-ring-outer">
+                <div class="dot-cw"></div>
+                <div class="dot-cw"></div>
+                <div class="dot-cw"></div>
+                <div class="dot-cw"></div>
+            </div>
+
+            <!-- Inner 2 Anti-Clockwise Dots -->
+            <div class="orbit-ring-inner">
+                <div class="dot-acw"></div>
+                <div class="dot-acw"></div>
+            </div>
+
+            <!-- Football Neural Sphere -->
+            <div class="neural-sphere">
+                <div class="particle p1"></div>
+                <div class="particle p2"></div>
+                <div class="particle p3"></div>
+                <div class="particle p4"></div>
+                <div class="particle p5"></div>
+                <div class="particle p6"></div>
+                <div class="particle p7"></div>
+                <div class="particle p8"></div>
+                <div class="particle p9"></div>
+            </div>
+        </div>
+
+        <div class="core-label">Neural Security Core</div>
+
+        <!-- Login Form -->
+        <div class="input-group">
+            <span class="input-icon">🔑</span>
+            <input type="text" id="licenseKey" placeholder="ENTER LICENSE KEY" autocomplete="off">
+        </div>
+        
+        <div id="error-msg">Invalid license key!</div>
+
+        <button class="btn-activate" onclick="verifyKey()">ACTIVATE AI &rarr;</button>
+
+        <div class="links-container">
+            <a href="https://youtube.com" target="_blank" class="action-link">
+                <span>▶️ How to Get / Activate Your Gen-Z Bot License</span>
+                <span>↗</span>
+            </a>
+            <a href="https://telegram.org" target="_blank" class="action-link">
+                <span>🔑 Get License Key — DM on Telegram</span>
+                <span>💬</span>
+            </a>
+        </div>
+    </div>
+
+    <script>
+        async function verifyKey() {
+            const key = document.getElementById('licenseKey').value.trim();
+            const errorMsg = document.getElementById('error-msg');
+
+            if (!key) {
+                errorMsg.innerText = "Please enter a license key!";
+                errorMsg.style.display = 'block';
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/verify-key', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ key })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    window.location.href = '/dashboard.html';
+                } else {
+                    errorMsg.innerText = data.message || "Invalid license key!";
+                    errorMsg.style.display = 'block';
+                }
+            } catch (err) {
+                errorMsg.innerText = "Server connection error!";
+                errorMsg.style.display = 'block';
+            }
+        }
+    </script>
+</body>
+</html>
