@@ -1,3 +1,33 @@
+<!-- Admin Login Overlay -->
+<div id="adminLoginModal" style="position: fixed; inset: 0; background: rgba(3,7,18,0.95); z-index: 999; display: flex; justify-content: center; align-items: center;">
+    <div style="background: rgba(13,20,35,0.95); border: 1px solid #00f2fe; padding: 30px; border-radius: 16px; text-align: center; width: 320px; box-shadow: 0 0 30px rgba(0,242,254,0.3);">
+        <h2 style="font-family:'Orbitron',sans-serif; color:#00f2fe; font-size:16px; margin-bottom:15px;">Admin Login</h2>
+        <input type="text" id="adminUser" placeholder="Username" style="width:100%; padding:10px; margin-bottom:10px; background:#09101d; border:1px solid rgba(0,242,254,0.3); color:#fff; border-radius:8px;">
+        <input type="password" id="adminPass" placeholder="Password" style="width:100%; padding:10px; margin-bottom:15px; background:#09101d; border:1px solid rgba(0,242,254,0.3); color:#fff; border-radius:8px;">
+        <button onclick="loginAdmin()" style="width:100%; padding:10px; background:linear-gradient(135deg, #00f2fe, #4facfe); border:none; color:#030712; font-weight:700; border-radius:8px; cursor:pointer;">LOGIN TO ADMIN</button>
+    </div>
+</div>
+
+<script>
+    async function loginAdmin() {
+        const u = document.getElementById('adminUser').value;
+        const p = document.getElementById('adminPass').value;
+
+        const res = await fetch('/api/admin/login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ username: u, password: p })
+        });
+        const data = await res.json();
+        
+        if (data.success) {
+            document.getElementById('adminLoginModal').style.display = 'none';
+            loadAdminData(); // Load table data after login
+        } else {
+            alert(data.message);
+        }
+    }
+</script>
 <!DOCTYPE html>
 <html lang="en">
 <head>
