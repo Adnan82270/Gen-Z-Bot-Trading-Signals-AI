@@ -19,21 +19,7 @@ app.use(session({
     cookie: { maxAge: 24 * 60 * 60 * 1000 }
 }));
 
-// MongoDB Atlas Database Connection
-const MONGO_URI = process.env.MONGO_URI || 'YOUR_MONGODB_ATLAS_URI';
-mongoose.connect(MONGO_URI)
-.then(async () => {
-    console.log('MongoDB Atlas Connected Successfully!');
-    const adminCount = await Admin.countDocuments();
-    if (adminCount === 0) {
-        const hashedPassword = await bcrypt.hash('admin12345', 10);
-        await Admin.create({ username: 'admin', password: hashedPassword });
-        console.log('Default Admin Account Created');
-    }
-})
-.catch(err => console.error('MongoDB Connection Error:', err));
-
-// Database Schemas
+// ==================== DATABASE SCHEMAS (Defined First) ====================
 const AdminSchema = new mongoose.Schema({
     username: { type: String, required: true, unique: true, default: 'admin' },
     password: { type: String, required: true }
@@ -46,7 +32,7 @@ const UserSchema = new mongoose.Schema({
     activeDeviceId: { type: String, default: null },
     sessionToken: { type: String, default: null },
     planExpiresAt: { type: Date, default: null },
-    createdAt: { type: Date, default: Date.now }
+    createdAt: { type: Date, date: Date.now }
 });
 const User = mongoose.model('User', UserSchema);
 
@@ -60,7 +46,23 @@ const KeySchema = new mongoose.Schema({
 });
 const Key = mongoose.model('Key', KeySchema);
 
-// Admin Middleware
+
+// ==================== MONGODB CONNECTION ====================
+const MONGO_URI = process.env.MONGO_URI || 'YOUR_MONGODB_ATLAS_URI';
+mongoose.connect(MONGO_URI)
+.then(async () => {
+    console.log('MongoDB Atlas Connected Successfully!');
+    const adminCount = await Admin.countDocuments();
+    if (adminCount === 0) {
+        const hashedPassword = await bcrypt.hash('admin12345', 10);
+        await Admin.create({ username: 'admin', password: hashedPassword });
+        console.log('Default Admin Account Created');
+    }
+})
+.catch(err => console.error('MongoDB Connection Error:', err));
+
+
+// ==================== ADMIN MIDDLEWARES & HELPERS ====================
 function isAdmin(req, res, next) {
     if (req.session && req.session.isAdmin) {
         return next();
@@ -78,7 +80,8 @@ function generateActivationKey(length = 16) {
     return key;
 }
 
-// Admin API Routes
+
+// ==================== ADMIN API ROUTES ====================
 app.post('/api/admin/login', async (req, res) => {
     try {
         const { username, password } = req.body;
